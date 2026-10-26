@@ -1,5 +1,7 @@
+<img src="Assets/KakedenController.png" width="96" alt="kakeden logo">
+
 # Roblox Account Utils
-By 1kakeden.
+By kakeden.
 
 A small Windows app for organizing Roblox accounts, keeping sign-ins separate, launching accounts in a queue, and sharing window assignments with Swordburst 2 Controller.
 
