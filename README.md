@@ -1,12 +1,12 @@
 # Roblox Account Utils
 
-**By 1kakeden · v1.1.1 · Windows 10/11 x64**
+**By 1kakeden · v1.1.2 · Windows 10/11 x64**
 
-I built Roblox Account Utils to organize separate Roblox sign-in sessions, launch selected accounts in sequence, and hand off to Swordburst 2 Controller. Version 1.1.1 adds custom input controls and saved account-to-window assignments; existing account profiles are preserved.
+I built Roblox Account Utils to organize separate Roblox sign-in sessions, launch selected accounts in sequence, and hand off to Swordburst 2 Controller. Version 1.1.2 adds compatibility-guard lifetime protection and verified launch queues; existing account profiles are preserved.
 
 ## Download and start
 
-Download **Roblox_Account_Utils_v1.1.1_win-x64.zip** from the [latest release](https://github.com/kakedent/roblox-account-utils-releases/releases/latest). Extract the entire ZIP and run **RobloxAccountUtils.exe**. Keep the included folders and DLLs beside the executable. The Microsoft Edge WebView2 Runtime is required for embedded sign-in windows.
+Download **Roblox_Account_Utils_v1.1.2_win-x64.zip** from the [latest release](https://github.com/kakedent/roblox-account-utils-releases/releases/latest). Extract the entire ZIP and run **RobloxAccountUtils.exe**. Keep the included folders and DLLs beside the executable. The Microsoft Edge WebView2 Runtime is required for embedded sign-in windows.
 
 Add or select account profiles, sign in through each profile's browser window, and choose the accounts to launch. **Settings** contains launch delays, verification, themes, optional cleanup, and the path to Swordburst 2 Controller. Select **Swordburst2Controller.exe** if upgrading from the earlier controller name.
 
@@ -27,7 +27,7 @@ Profiles remain in **%LOCALAPPDATA%\1kakeden\SessionLauncher** for compatibility
 
 Automatic cleanup starts off. It considers only new clients tracked during a verified launch queue, and waits 25 seconds after a previously observed game window disappears. **Close selected hidden PID** asks for confirmation before attempting to close a selected client.
 
-Window visibility is a heuristic, so cleanup can affect a loading or background client. Test it with the intended setup before enabling it. Exiting the app cancels the remaining queue and does not intentionally close Roblox clients or the controller; releasing the experimental multi-instance guard may still affect compatibility.
+Window visibility is a heuristic, so cleanup can affect a loading or background client. Test it with the intended setup before enabling it. Exiting the app cancels the remaining queue and does not intentionally close Roblox clients or the controller; the compatibility guard can remain in a separate background helper until all Roblox clients have closed.
 
 This is an unofficial, unsigned Windows utility, not affiliated with Roblox. Multi-instance behavior depends on the installed Roblox version. Game and server rules apply.
 
@@ -43,7 +43,7 @@ The legacy external browser executable field has been removed. Layout spacing, w
 
 The source repository is private. Contributors with access can install the .NET 8 SDK or newer and run **build-windows.cmd** from the project root. The script publishes **publish\RobloxAccountUtils.exe** and packages the complete distribution in **dist**.
 
-## Version 1.1.1
+## Previous updates
 
 Startup and manual update checks use the same GitHub stable-release approach as Swordburst 2 Controller. Trusted, intentional Roblox launches from the embedded browser are handed to the registered Roblox app; other external protocols retain the browser prompt. The legacy browser.exe setting has been removed. Headers and action rows have more space, and the client list shows RAM use per process. Close sign-in browser windows when finished to release their browser resources.
 
@@ -58,3 +58,13 @@ Select an account, click **Assign window…**, and choose its Roblox game window
 Use the refreshed Swordburst 2 Controller v1.1.2 on the same Windows user account. Stop automation, then select **Scan / Arrange** or **Start** to load assignments. Linked live windows are ordered by the Account Utils account list, ahead of unassigned windows. Controller account cards show the saved account nickname. Changes made during a run take effect after stopping and scanning or starting again.
 
 Assignments survive restarting the apps while the same Roblox windows remain open. When Roblox closes or restarts, select its new window again; old process/window identities are never automatically reused. Removing an account also removes its saved assignment. Controller combat settings remain session-specific.
+
+## Version 1.1.2 — launch protection
+
+When experimental multi-instance compatibility is enabled, Utils starts a small background guard keeper. It confirms readiness before compatibility is marked active. Closing Utils or disabling compatibility leaves the keeper holding its own guard reference while any Roblox client remains open. It exits after the launcher has released it and no Roblox clients remain for 30 seconds. Unexpected termination of Utils is handled the same way. The helper does not launch games, modify Roblox processes, register itself at Windows startup, or connect to a server.
+
+Every launch queue now waits for a new game window with a verified process identity to remain present for at least 1.5 seconds. A process without a game window is not considered a successful launch. A timeout stops the remaining queue. The Verify setting controls the waiting period; complete sign-in before launching a queue, and increase the timeout for slower game starts.
+
+If recent local Roblox logs show the specific SingleInstanceGuard / invalid-window failure, Utils stops the queue and blocks further queued launches while Roblox clients remain. It reports that a restart is needed when convenient, without closing existing games or automatically retrying. Only the error classification is used; raw Roblox logs are not copied into app logs, configuration exports, or server uploads.
+
+This protects the lifetime of Utils' existing experimental guard. It cannot guarantee compatibility with future Roblox changes or repair an already broken Roblox session. Install and activate the update after important gameplay has finished.
